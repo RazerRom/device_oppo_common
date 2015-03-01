@@ -17,10 +17,13 @@
 package com.cyanogenmod.settings.device;
 
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.input.InputManager;
 import android.os.Build;
@@ -29,6 +32,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.preference.PreferenceManager;
 import android.service.gesture.IGestureService;
 import android.view.InputDevice;
 import android.view.InputEvent;
@@ -76,10 +80,15 @@ public class Startup extends BroadcastReceiver {
             }
 
             // Disable O-Click settings if needed
-            if (!Build.MODEL.equals("N1") && !Build.MODEL.equals("N3")) {
+            if (!hasOClick()) {
                 disableComponent(context, BluetoothInputSettings.class.getName());
                 disableComponent(context, OclickService.class.getName());
-                disableComponent(context, BluetoothReceiver.class.getName());
+            } else {
+                updateOClickServiceState(context);
+            }
+        } else if (intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+            if (hasOClick()) {
+                updateOClickServiceState(context);
             }
         } else if (intent.getAction().equals("cyanogenmod.intent.action.GESTURE_CAMERA")) {
             long now = SystemClock.uptimeMillis();
@@ -143,6 +152,7 @@ public class Startup extends BroadcastReceiver {
                 PackageManager.DONT_KILL_APP);
     }
 
+<<<<<<< HEAD
     private void enableComponent(Context context, String component) {
         ComponentName name = new ComponentName(context, component);
         PackageManager pm = context.getPackageManager();
@@ -154,6 +164,8 @@ public class Startup extends BroadcastReceiver {
         }
     }
 
+=======
+>>>>>>> 4d5589d... Rewrite O-Click connection logic.
     private static boolean hasOClick() {
         return Build.MODEL.equals("N1") || Build.MODEL.equals("N3");
     }
