@@ -48,6 +48,7 @@ public class Startup extends BroadcastReceiver {
             if (!hasTouchscreenGestures()) {
                 disableComponent(context, TouchscreenGestureSettings.class.getName());
             } else {
+                enableComponent(context, TouchscreenGestureSettings.class.getName());
                 // Restore nodes to saved preference values
                 for (String pref : Constants.sNodePreferenceMap.keySet()) {
                     boolean defaultValue = Constants.sNodeDefaultMap.get(pref).booleanValue();
@@ -140,5 +141,37 @@ public class Startup extends BroadcastReceiver {
         pm.setComponentEnabledSetting(name,
                 PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);
+    }
+
+    private void enableComponent(Context context, String component) {
+        ComponentName name = new ComponentName(context, component);
+        PackageManager pm = context.getPackageManager();
+        if (pm.getComponentEnabledSetting(name)
+                == PackageManager.COMPONENT_ENABLED_STATE_DISABLED) {
+            pm.setComponentEnabledSetting(name,
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    PackageManager.DONT_KILL_APP);
+        }
+    }
+
+    private static boolean hasOClick() {
+        return Build.MODEL.equals("N1") || Build.MODEL.equals("N3");
+    }
+
+    private void updateOClickServiceState(Context context) {
+        BluetoothManager btManager = (BluetoothManager)
+                context.getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter adapter = btManager.getAdapter();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean shouldStartService = adapter != null
+                && adapter.getState() == BluetoothAdapter.STATE_ON
+                && prefs.contains(Constants.OCLICK_DEVICE_ADDRESS_KEY);
+        Intent serviceIntent = new Intent(context, OclickService.class);
+
+        if (shouldStartService) {
+            context.startService(serviceIntent);
+        } else {
+            context.stopService(serviceIntent);
+        }
     }
 }
