@@ -152,7 +152,6 @@ public class Startup extends BroadcastReceiver {
                 PackageManager.DONT_KILL_APP);
     }
 
-<<<<<<< HEAD
     private void enableComponent(Context context, String component) {
         ComponentName name = new ComponentName(context, component);
         PackageManager pm = context.getPackageManager();
@@ -164,8 +163,6 @@ public class Startup extends BroadcastReceiver {
         }
     }
 
-=======
->>>>>>> 4d5589d... Rewrite O-Click connection logic.
     private static boolean hasOClick() {
         return Build.MODEL.equals("N1") || Build.MODEL.equals("N3");
     }
